@@ -301,6 +301,24 @@ func (b *HitBtc) PlaceOrder(requestOrder Order) (responseOrder Order, err error)
     return
 }
 
+// An order book is an electronic list of buy and sell orders for a specific symbol, organized by price level
+func (b *HitBtc) GetOrderBook(symbol string, limit int) (orderBook OrderBook, err error) {
+	resource := fmt.Sprintf("public/orderbook/%s?limit=%d", symbol, limit)
+	r, err := b.client.do("GET", resource,nil,true)
+	if err != nil {
+		return
+	}
+	var response interface{}
+	if err = json.Unmarshal(r, &response); err != nil {
+		return
+	}
+	if err = handleErr(response); err != nil {
+		return
+	}
+	err = json.Unmarshal(r, &orderBook)
+	return
+}
+
 // GetTransactions is used to retrieve your withdrawal and deposit history
 // "Start" and "end" are given in UNIX timestamp format in miliseconds and used to specify the date range for the data returned.
 func (b *HitBtc) GetTransactions(start uint64, end uint64, limit uint32) (transactions []Transaction, err error) {
